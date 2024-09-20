@@ -1,0 +1,295 @@
+<!DOCTYPE html>  
+<html lang="es">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Fichas de Rol</title>  
+    <style>  
+        body { font-family: Arial, sans-serif; }  
+        .ficha { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }  
+        form { margin-bottom: 20px; }  
+        input, textarea { display: block; width: 100%; margin-top: 10px; }  
+        button { margin-top: 10px; }  
+    </style>  
+</head>  
+<body>  
+    <h1>Fichas de Rol</h1>  
+    <form id="fichaForm">  
+        <input type="text" id="nombre" placeholder="Nombre del Personaje" required>  
+        <input type="text" id="jugador" placeholder="Nombre del Jugador" required>  
+        <textarea id="descripcion" placeholder="Descripción" required></textarea>  
+        <button type="submit">Agregar Ficha</button>  
+    </form>  
+    
+    <div id="fichasList"></div>  
+
+    <script>  
+        const form = document.getElementById('fichaForm');  
+        const fichasList = document.getElementById('fichasList');  
+
+        // Cargar fichas desde el almacenamiento local  
+        function cargarFichas() {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.forEach(ficha => agregarFichaDOM(ficha.nombre, ficha.jugador, ficha.descripcion));  
+        }  
+
+        // Agregar ficha al DOM  
+        function agregarFichaDOM(nombre, jugador, descripcion) {  
+            const fichaDiv = document.createElement('div');  
+            fichaDiv.className = 'ficha';  
+            fichaDiv.innerHTML = `  
+                <h3>${nombre} (Jugado por: ${jugador})</h3>  
+                <p>${descripcion}</p>  
+            `;  
+            fichasList.appendChild(fichaDiv);  
+        }  
+
+        // Manejar el envío del formulario  
+        form.addEventListener('submit', function(event) {  
+            event.preventDefault();  
+            
+            const nombre = document.getElementById('nombre').value;  
+            const jugador = document.getElementById('jugador').value;  
+            const descripcion = document.getElementById('descripcion').value;  
+            
+            // Crear objeto de ficha  
+            const nuevaFicha = { nombre, jugador, descripcion };  
+            
+            // Guardar en el almacenamiento local  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.push(nuevaFicha);  
+            localStorage.setItem('fichas', JSON.stringify(fichas));  
+            
+            // Agregar al DOM  
+            agregarFichaDOM(nombre, jugador, descripcion);  
+
+            // Limpiar el formulario  
+            form.reset();  
+        });  
+
+        // Cargar fichas al cargar la página  
+        window.onload = cargarFichas;  
+  <!DOCTYPE html>  
+<html lang="es">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Fichas de Rol</title>  
+    <style>  
+        body { font-family: Arial, sans-serif; }  
+        .ficha { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; position: relative; }  
+        form { margin-bottom: 20px; }  
+        input, textarea { display: block; width: calc(100% - 22px); margin-top: 10px; padding: 10px; }  
+        button { margin-top: 10px; }  
+        .button-container { position: absolute; top: 10px; right: 10px; }  
+        .edit-btn, .delete-btn { margin-left: 5px; }  
+    </style>  
+</head>  
+<body>  
+    <h1>Fichas de Rol</h1>  
+    <form id="fichaForm">  
+        <input type="text" id="nombre" placeholder="Nombre del Personaje" required>  
+        <input type="text" id="jugador" placeholder="Nombre del Jugador" required>  
+        <textarea id="descripcion" placeholder="Descripción" required></textarea>  
+        <input type="hidden" id="fichaIndex" value="-1" />  
+        <button type="submit">Agregar Ficha</button>  
+    </form>  
+    
+    <div id="fichasList"></div>  
+
+    <script>  
+        const form = document.getElementById('fichaForm');  
+        const fichasList = document.getElementById('fichasList');  
+
+        function cargarFichas() {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.forEach((ficha, index) => agregarFichaDOM(ficha, index));  
+        }  
+
+        function agregarFichaDOM(ficha, index) {  
+            const fichaDiv = document.createElement('div');  
+            fichaDiv.className = 'ficha';  
+            fichaDiv.innerHTML = `  
+                <h3>${ficha.nombre} (Jugado por: ${ficha.jugador})</h3>  
+                <p>${ficha.descripcion}</p>  
+                <div class="button-container">  
+                    <button class="edit-btn" onclick="editarFicha(${index})">Editar</button>  
+                    <button class="delete-btn" onclick="eliminarFicha(${index})">Eliminar</button>  
+                </div>  
+            `;  
+            fichasList.appendChild(fichaDiv);  
+        }  
+
+        function editarFicha(index) {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            const ficha = fichas[index];  
+            document.getElementById('nombre').value = ficha.nombre;  
+            document.getElementById('jugador').value = ficha.jugador;  
+            document.getElementById('descripcion').value = ficha.descripcion;  
+            document.getElementById('fichaIndex').value = index;  
+        }  
+
+        function eliminarFicha(index) {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.splice(index, 1); // Elimina la ficha del array  
+            localStorage.setItem('fichas', JSON.stringify(fichas)); // Actualiza el almacenamiento local  
+            renderizarFichas();  
+        }  
+
+        function renderizarFichas() {  
+            fichasList.innerHTML = ''; // Limpiar la lista  
+            cargarFichas(); // Cargar fichas nuevamente  
+        }  
+
+        form.addEventListener('submit', function(event) {  
+            event.preventDefault();  
+            
+            const nombre = document.getElementById('nombre').value;  
+            const jugador = document.getElementById('jugador').value;  
+            const descripcion = document.getElementById('descripcion').value;  
+            const index = document.getElementById('fichaIndex').value;  
+
+            const nuevaFicha = { nombre, jugador, descripcion };  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+
+            if (index === '-1') {  
+                // Agregar nueva ficha  
+                fichas.push(nuevaFicha);  
+            } else {  
+                // Editar ficha existente  
+                fichas[index] = nuevaFicha;  
+            }  
+
+            localStorage.setItem('fichas', JSON.stringify(fichas));  
+            renderizarFichas();  
+
+            // Limpiar el formulario  
+            form.reset();  
+            document.getElementById('fichaIndex').value = '-1';  
+        });  
+
+        window.onload = cargarFichas;  
+<!DOCTYPE html>  
+<html lang="es">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Fichas de Rol</title>  
+    <style>  
+        body { font-family: Arial, sans-serif; }  
+        .ficha { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; position: relative; display: flex; align-items: center; }  
+        .ficha img { width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; }  
+        form { margin-bottom: 20px; }  
+        input, textarea { display: block; width: calc(100% - 22px); margin-top: 10px; padding: 10px; }  
+        button { margin-top: 10px; }  
+        .button-container { position: absolute; top: 10px; right: 10px; }  
+    </style>  
+</head>  
+<body>  
+    <h1>Fichas de Rol</h1>  
+    <form id="fichaForm">  
+        <input type="text" id="nombre" placeholder="Nombre del Personaje" required>  
+        <input type="text" id="jugador" placeholder="Nombre del Jugador" required>  
+        <textarea id="descripcion" placeholder="Descripción" required></textarea>  
+        <input type="file" id="imagen" accept="image/*" required>  
+        <input type="hidden" id="fichaIndex" value="-1" />  
+        <button type="submit">Agregar Ficha</button>  
+    </form>  
+    
+    <div id="fichasList"></div>  
+
+    <script>  
+        const form = document.getElementById('fichaForm');  
+        const fichasList = document.getElementById('fichasList');  
+
+        function cargarFichas() {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.forEach((ficha, index) => agregarFichaDOM(ficha, index));  
+        }  
+
+        function agregarFichaDOM(ficha, index) {  
+            const fichaDiv = document.createElement('div');  
+            fichaDiv.className = 'ficha';  
+            fichaDiv.innerHTML = `  
+                <img src="${ficha.imagen}" alt="${ficha.nombre}">  
+                <div>  
+                    <h3>${ficha.nombre} (Jugado por: ${ficha.jugador})</h3>  
+                    <p>${ficha.descripcion}</p>  
+                </div>  
+                <div class="button-container">  
+                    <button class="edit-btn" onclick="editarFicha(${index})">Editar</button>  
+                    <button class="delete-btn" onclick="eliminarFicha(${index})">Eliminar</button>  
+                </div>  
+            `;  
+            fichasList.appendChild(fichaDiv);  
+        }  
+
+        function editarFicha(index) {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            const ficha = fichas[index];  
+            document.getElementById('nombre').value = ficha.nombre;  
+            document.getElementById('jugador').value = ficha.jugador;  
+            document.getElementById('descripcion').value = ficha.descripcion;  
+            document.getElementById('fichaIndex').value = index;  
+            document.getElementById('imagen').style.display = 'none';  // Ocultar el campo de imagen al editar  
+        }  
+
+        function eliminarFicha(index) {  
+            const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+            fichas.splice(index, 1);  
+            localStorage.setItem('fichas', JSON.stringify(fichas));  
+            renderizarFichas();  
+        }  
+
+        function renderizarFichas() {  
+            fichasList.innerHTML = '';  
+            cargarFichas();  
+        }  
+
+        form.addEventListener('submit', function (event) {  
+            event.preventDefault();  
+            
+            const nombre = document.getElementById('nombre').value;  
+            const jugador = document.getElementById('jugador').value;  
+            const descripcion = document.getElementById('descripcion').value;  
+            const imagenInput = document.getElementById('imagen');  
+            const index = document.getElementById('fichaIndex').value;  
+
+            // Leer la imagen seleccionada  
+            const imagen = imagenInput.files[0];  
+            const reader = new FileReader();  
+            
+            reader.onloadend = function() {  
+                const nuevaFicha = { nombre, jugador, descripcion, imagen: reader.result };  
+                const fichas = JSON.parse(localStorage.getItem('fichas')) || [];  
+
+                if (index === '-1') {  
+                    fichas.push(nuevaFicha);  
+                } else {  
+                    fichas[index] = nuevaFicha;  
+                }  
+
+                localStorage.setItem('fichas', JSON.stringify(fichas));  
+                renderizarFichas();  
+
+                // Limpiar el formulario  
+                form.reset();  
+                document.getElementById('fichaIndex').value = '-1';  
+            };  
+
+            if (imagen) {  
+                reader.readAsDataURL(imagen); // Leer la imagen como una URL  
+            } else {  
+                alert("Por favor selecciona una imagen.");  
+            }  
+        });  
+
+        window.onload = cargarFichas;  
+    </script>  
+</body>  
+</html>  
+    </script>  
+    
+    </script>  
+</body>  
+</html> 
